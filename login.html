@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Learn - Login</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+        .login-header {
+            margin-bottom: 20px;
+        }
+        .login-header h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-btn:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: red;
+            font-size: 12px;
+            text-align: left;
+            margin-top: -8px;
+            margin-bottom: 10px;
+        }
+        .signup-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>E-Learn</h2>
+            <p>Login to your account</p>
+        </div>
+        <form id="loginForm" class="login-form" onsubmit="return validateForm()">
+            <input 
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Username"
+                required
+            >
+            <div id="usernameError" class="error-message"></div>
+            
+            <input 
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Password"
+                required
+            >
+            <div id="passwordError" class="error-message"></div>
+            
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+        <div class="signup-link">
+            Don't have an account? <a href="#">Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            
+            // Reset previous error messages
+            document.getElementById("usernameError").textContent = "";
+            document.getElementById("passwordError").textContent = "";
+            
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            let isValid = true;
+            console.log()
+            //loginUser(username, password);
+            // Username validation
+            if (username.length <3) {
+                document.getElementById("usernameError").textContent = 
+                    "Username must be at least 3 characters long.";
+                isValid = false;
+            }
+            
+            // Password validation
+            if (password.length<6) {
+                document.getElementById("passwordError").textContent = 
+                    "Password must be at least 6 characters long.";
+                isValid = false;
+            }
+            
+            // If validation passes, redirect to home.html
+            
+            if(username=="admin")
+            {
+                localStorage.setItem('username', username);
+                window.location.href = './admin/adminpage.html'; 
+            }
+            else if (isValid) {
+                // Store username in localStorage
+                localStorage.setItem('username', username);
+                window.location.href = 'home.html'; // Redirect to home.html
+            }
+            
+            return false; // Prevent form submission
+        }
+async function loginUser(username, password) {
+    try {
+        const response = await fetch('http://localhost:3000/login', {
+            method: 'GET', // Using POST for secure data transfer
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id:username, password }), // Sending credentials
+        });
+
+        if (response.ok) {
+            // Parse JSON response
+            const data = await response.json().data;
+            console.log(data);
+            // Check if login was successful
+            if (data) {
+                console.log('Login successful:', data);
+                alert('Welcome, ' + data.name + '!'); // Example action on success
+                // Redirect to dashboard or perform post-login actions
+                if(data.name=='admin'){
+                    sessionStorage.setItem('userData',data);
+                window.location.href = './admin/adminpage.html';
+            } else if(data.name!='admin') 
+            {
+                sessionStorage.setItem('userData',data);
+                window.location.href = './home.html'; // Notify the user
+            }
+        } else {
+            console.error('Server error:', response.status);
+            alert('An error occurred on the server. Please try again later.');
+        }
+    }} catch (error) {
+        console.error('Network error:', error);
+        alert('A network error occurred. Please check your internet connection.');
+    }
+}
+    </script>
+</body>
+</html>
